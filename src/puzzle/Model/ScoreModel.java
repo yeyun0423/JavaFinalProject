@@ -1,4 +1,4 @@
-package puzzle;
+package puzzle.Model;
 
 public class ScoreModel {
     private int moves;
@@ -27,7 +27,6 @@ public class ScoreModel {
     }
 
     public int calculateScore() {
-        // 점수 계산 로직 (이동 횟수와 소요 시간 기반)
         long elapsedTime = getElapsedTime();
         return (int) (10000 / (moves * elapsedTime + 1)); // 예제 점수 계산식
     }

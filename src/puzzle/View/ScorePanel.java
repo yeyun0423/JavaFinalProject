@@ -1,4 +1,4 @@
-package puzzle;
+package puzzle.View;
 
 import javax.swing.*;
 import java.awt.*;

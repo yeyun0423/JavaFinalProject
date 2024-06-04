@@ -1,19 +1,35 @@
-package puzzle;
+package puzzle.Controller;
+
+import puzzle.Model.PuzzleModel;
+import puzzle.Model.ScoreModel;
+import puzzle.Model.User;
+import puzzle.Model.Leaderboard;
+import puzzle.View.PuzzleView;
+import puzzle.View.GameEndDialog;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
+import javax.swing.plaf.ColorUIResource;
+import java.awt.Frame;
 
 public class PuzzleController {
     private PuzzleModel model;
     private PuzzleView view;
     private ScoreModel scoreModel;
+    private String nickname;
+    private Leaderboard leaderboard;
+    private Frame mainFrame;
 
-    public PuzzleController(PuzzleModel model, PuzzleView view, ScoreModel scoreModel) {
+    public PuzzleController(PuzzleModel model, PuzzleView view, ScoreModel scoreModel, String nickname, Leaderboard leaderboard, Frame mainFrame) {
         this.model = model;
         this.view = view;
         this.scoreModel = scoreModel;
+        this.nickname = nickname;
+        this.leaderboard = leaderboard;
+        this.mainFrame = mainFrame;
         initializeController();
     }
 
@@ -32,7 +48,7 @@ public class PuzzleController {
                             view.getScorePanel().incrementMoves(); // 이동 횟수 업데이트
                             if (model.isSolved()) {
                                 scoreModel.endGame();
-                                JOptionPane.showMessageDialog(view, "퍼즐을 해결했습니다! 점수: " + scoreModel.calculateScore());
+                                showSuccessMessage();
                             }
                         }
                     }
@@ -60,5 +76,19 @@ public class PuzzleController {
             model.setValueAt(blankX, blankY, model.getValueAt(x, y));
             model.setValueAt(x, y, 0);
         }
+    }
+
+    private void showSuccessMessage() {
+        UIManager.put("OptionPane.background", new ColorUIResource(255, 228, 225));
+        UIManager.put("Panel.background", new ColorUIResource(255, 228, 225));
+        UIManager.put("OptionPane.messageForeground", new ColorUIResource(255, 105, 180));
+        UIManager.put("OptionPane.messageFont", new javax.swing.plaf.FontUIResource(new java.awt.Font("Serif", java.awt.Font.BOLD, 16)));
+        UIManager.put("Button.background", new ColorUIResource(255, 182, 193));
+        UIManager.put("Button.foreground", new ColorUIResource(255, 255, 255));
+
+        User user = new User(nickname, scoreModel.getElapsedTime(), scoreModel.getMoves(), model.getSize() + "x" + model.getSize());
+        leaderboard.addUser(user);
+
+        new GameEndDialog(mainFrame, user, leaderboard.getUsers()).setVisible(true);
     }
 }

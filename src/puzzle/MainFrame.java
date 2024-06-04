@@ -1,7 +1,16 @@
 package puzzle;
 
-import javax.swing.*;
+import puzzle.Model.PuzzleModel;
+import puzzle.Model.ScoreModel;
+import puzzle.Model.User;
+import puzzle.Model.Leaderboard;
+import puzzle.View.PuzzleView;
+import puzzle.Controller.PuzzleController;
+import puzzle.View.GameEndDialog;
 
+import javax.swing.*;
+import javax.swing.plaf.ColorUIResource;
+import javax.swing.plaf.basic.BasicButtonUI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,9 +18,12 @@ import java.awt.event.ActionListener;
 public class MainFrame extends JFrame {
     private JPanel mainPanel;
     private JButton startButton;
+    private String nickname;
+    private Leaderboard leaderboard;
 
     public MainFrame() {
-        setTitle("Slide Puzzle game");
+        leaderboard = new Leaderboard();
+        setTitle("귀여운 슬라이드 퍼즐 게임");
         setSize(600, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         initializeMainPage();
@@ -23,20 +35,17 @@ public class MainFrame extends JFrame {
         mainPanel.setLayout(new BorderLayout());
         mainPanel.setBackground(new Color(255, 228, 225));
 
-        JLabel titleLabel = new JLabel("Slide Puzzle game", JLabel.CENTER);
+        JLabel titleLabel = new JLabel("귀여운 슬라이드 퍼즐 게임", JLabel.CENTER);
         titleLabel.setFont(new Font("Serif", Font.BOLD, 24));
         titleLabel.setForeground(new Color(255, 105, 180));
 
-        startButton = new JButton("Start");
+        startButton = createRoundedButton("Start");
         startButton.setFont(new Font("Serif", Font.BOLD, 20));
-        startButton.setBackground(new Color(255, 182, 193));
-        startButton.setForeground(Color.WHITE);
-        startButton.setFocusPainted(false);
         startButton.setPreferredSize(new Dimension(150, 50));
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                showPuzzleSizeOptions();
+                promptForNickname();
             }
         });
 
@@ -46,20 +55,55 @@ public class MainFrame extends JFrame {
         add(mainPanel);
     }
 
+    private void promptForNickname() {
+        UIManager.put("OptionPane.background", new ColorUIResource(255, 228, 225));
+        UIManager.put("Panel.background", new ColorUIResource(255, 228, 225));
+        UIManager.put("OptionPane.messageForeground", new ColorUIResource(255, 105, 180));
+        UIManager.put("OptionPane.messageFont", new javax.swing.plaf.FontUIResource(new java.awt.Font("Serif", java.awt.Font.BOLD, 16)));
+        UIManager.put("Button.background", new ColorUIResource(255, 182, 193));
+        UIManager.put("Button.foreground", new ColorUIResource(255, 255, 255));
+
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBackground(new Color(255, 228, 225));
+        JTextField textField = new JTextField(10);
+        textField.setFont(new Font("Serif", Font.BOLD, 16));
+        textField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(255, 105, 180), 1),
+                BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        ));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(10, 10, 10, 10);
+        panel.add(new JLabel("닉네임을 입력하세요:"), gbc);
+
+        gbc.gridx = 1;
+        panel.add(textField, gbc);
+
+        int result = JOptionPane.showConfirmDialog(this, panel, "닉네임 입력", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (result == JOptionPane.OK_OPTION) {
+            nickname = textField.getText();
+            if (nickname != null && !nickname.trim().isEmpty()) {
+                showPuzzleSizeOptions();
+            } else {
+                showMessage("닉네임을 입력해주세요.");
+            }
+        }
+    }
+
     private void showPuzzleSizeOptions() {
-        JDialog dialog = new JDialog(this, "Choose puzzle size", true);
+        JDialog dialog = new JDialog(this, "퍼즐 크기 선택", true);
         dialog.setSize(300, 200);
         dialog.setLayout(new GridLayout(4, 1));
         dialog.getContentPane().setBackground(new Color(255, 228, 225));
 
-        JLabel messageLabel = new JLabel("Choose puzzle size", JLabel.CENTER);
+        JLabel messageLabel = new JLabel("퍼즐 크기를 선택하세요", JLabel.CENTER);
         messageLabel.setFont(new Font("Serif", Font.PLAIN, 18));
         messageLabel.setForeground(new Color(255, 105, 180));
-        
-        JButton button3x3 = new JButton("3x3");
-        button3x3.setBackground(new Color(255, 182, 193));
-        button3x3.setForeground(Color.WHITE);
-        button3x3.setFont(new Font("Serif", Font.BOLD, 16));
+
+        JButton button3x3 = createRoundedButton("3x3");
         button3x3.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -68,10 +112,7 @@ public class MainFrame extends JFrame {
             }
         });
 
-        JButton button4x4 = new JButton("4x4");
-        button4x4.setBackground(new Color(255, 182, 193));
-        button4x4.setForeground(Color.WHITE);
-        button4x4.setFont(new Font("Serif", Font.BOLD, 16));
+        JButton button4x4 = createRoundedButton("4x4");
         button4x4.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -80,10 +121,7 @@ public class MainFrame extends JFrame {
             }
         });
 
-        JButton button5x5 = new JButton("5x5");
-        button5x5.setBackground(new Color(255, 182, 193));
-        button5x5.setForeground(Color.WHITE);
-        button5x5.setFont(new Font("Serif", Font.BOLD, 16));
+        JButton button5x5 = createRoundedButton("5x5");
         button5x5.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -96,9 +134,38 @@ public class MainFrame extends JFrame {
         dialog.add(button3x3);
         dialog.add(button4x4);
         dialog.add(button5x5);
-        
+
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
+    }
+
+    private JButton createRoundedButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Serif", Font.BOLD, 16));
+        button.setBackground(new Color(255, 182, 193));
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        button.setUI(new BasicButtonUI() {
+            @Override
+            public void paint(Graphics g, JComponent c) {
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int width = c.getWidth();
+                int height = c.getHeight();
+                int arc = 20;
+                g2.setColor(c.getBackground());
+                g2.fillRoundRect(0, 0, width, height, arc, arc);
+                super.paint(g, c);
+            }
+        });
+        return button;
+    }
+
+    private void showMessage(String message) {
+        UIManager.put("OptionPane.okButtonText", "확인");
+        UIManager.put("Button.background", new ColorUIResource(255, 182, 193));
+        UIManager.put("Button.foreground", new ColorUIResource(255, 255, 255));
+        JOptionPane.showMessageDialog(this, message, "메시지", JOptionPane.PLAIN_MESSAGE);
     }
 
     private void startGame(int size) {
@@ -108,11 +175,9 @@ public class MainFrame extends JFrame {
         PuzzleModel model = new PuzzleModel(size);
         PuzzleView view = new PuzzleView(model);
         ScoreModel scoreModel = new ScoreModel();
-        PuzzleController controller = new PuzzleController(model, view, scoreModel);
-        GameTimer timer = new GameTimer();
+        PuzzleController controller = new PuzzleController(model, view, scoreModel, nickname, leaderboard, this);
 
         add(view, BorderLayout.CENTER);
-        timer.start();
 
         revalidate();
         repaint();

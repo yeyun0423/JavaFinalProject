@@ -1,4 +1,4 @@
-package puzzle;
+package puzzle.Model;
 
 import java.util.Collections;
 import java.util.List;

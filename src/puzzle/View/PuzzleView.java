@@ -1,7 +1,7 @@
-package puzzle;
+package puzzle.View;
 
+import puzzle.Model.PuzzleModel;
 import javax.swing.*;
-
 import java.awt.*;
 
 public class PuzzleView extends JPanel {
