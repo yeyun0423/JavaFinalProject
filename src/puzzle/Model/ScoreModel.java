@@ -23,11 +23,11 @@ public class ScoreModel {
     }
 
     public long getElapsedTime() {
-        return (endTime - startTime) / 1000; // 초 단위로 반환
+        return (endTime - startTime) / 1000; 
     }
 
     public int calculateScore() {
         long elapsedTime = getElapsedTime();
-        return (int) (10000 / (moves * elapsedTime + 1)); // 예제 점수 계산식
+        return (int) (10000 / (moves * elapsedTime + 1)); 
     }
 }

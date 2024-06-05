@@ -5,7 +5,7 @@ import puzzle.Model.ScoreModel;
 import puzzle.Model.User;
 import puzzle.Model.Leaderboard;
 import puzzle.View.PuzzleView;
-import puzzle.View.GameEndDialog;
+import puzzle.View.Ranking;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -89,6 +89,6 @@ public class PuzzleController {
         User user = new User(nickname, scoreModel.getElapsedTime(), scoreModel.getMoves(), model.getSize() + "x" + model.getSize());
         leaderboard.addUser(user);
 
-        new GameEndDialog(mainFrame, user, leaderboard.getUsers()).setVisible(true);
+        new Ranking(mainFrame, leaderboard.getUsers()).setVisible(true);
     }
 }

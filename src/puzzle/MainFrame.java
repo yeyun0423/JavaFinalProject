@@ -6,11 +6,10 @@ import puzzle.Model.User;
 import puzzle.Model.Leaderboard;
 import puzzle.View.PuzzleView;
 import puzzle.Controller.PuzzleController;
-import puzzle.View.GameEndDialog;
+import puzzle.View.Ranking;
 
 import javax.swing.*;
 import javax.swing.plaf.ColorUIResource;
-import javax.swing.plaf.basic.BasicButtonUI;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,6 +17,7 @@ import java.awt.event.ActionListener;
 public class MainFrame extends JFrame {
     private JPanel mainPanel;
     private JButton startButton;
+    private JButton rankingButton;
     private String nickname;
     private Leaderboard leaderboard;
 
@@ -39,7 +39,7 @@ public class MainFrame extends JFrame {
         titleLabel.setFont(new Font("Serif", Font.BOLD, 24));
         titleLabel.setForeground(new Color(255, 105, 180));
 
-        startButton = createRoundedButton("Start");
+        startButton = createStyledButton("Start");
         startButton.setFont(new Font("Serif", Font.BOLD, 20));
         startButton.setPreferredSize(new Dimension(150, 50));
         startButton.addActionListener(new ActionListener() {
@@ -49,10 +49,33 @@ public class MainFrame extends JFrame {
             }
         });
 
+        rankingButton = createStyledButton("Ranking");
+        rankingButton.setFont(new Font("Serif", Font.BOLD, 20));
+        rankingButton.setPreferredSize(new Dimension(150, 50));
+        rankingButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showRankingPage();
+            }
+        });
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(new Color(255, 228, 225));
+        buttonPanel.add(startButton);
+        buttonPanel.add(rankingButton);
+
         mainPanel.add(titleLabel, BorderLayout.CENTER);
-        mainPanel.add(startButton, BorderLayout.SOUTH);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
+    }
+
+    private JButton createStyledButton(String text) {
+        JButton button = new JButton(text);
+        button.setBackground(new Color(255, 182, 193));
+        button.setForeground(Color.WHITE);
+        button.setFocusPainted(false);
+        return button;
     }
 
     private void promptForNickname() {
@@ -103,7 +126,8 @@ public class MainFrame extends JFrame {
         messageLabel.setFont(new Font("Serif", Font.PLAIN, 18));
         messageLabel.setForeground(new Color(255, 105, 180));
 
-        JButton button3x3 = createRoundedButton("3x3");
+        JButton button3x3 = createStyledButton("3x3");
+        button3x3.setFont(new Font("Serif", Font.BOLD, 16));
         button3x3.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -112,7 +136,8 @@ public class MainFrame extends JFrame {
             }
         });
 
-        JButton button4x4 = createRoundedButton("4x4");
+        JButton button4x4 = createStyledButton("4x4");
+        button4x4.setFont(new Font("Serif", Font.BOLD, 16));
         button4x4.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -121,7 +146,8 @@ public class MainFrame extends JFrame {
             }
         });
 
-        JButton button5x5 = createRoundedButton("5x5");
+        JButton button5x5 = createStyledButton("5x5");
+        button5x5.setFont(new Font("Serif", Font.BOLD, 16));
         button5x5.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -139,33 +165,15 @@ public class MainFrame extends JFrame {
         dialog.setVisible(true);
     }
 
-    private JButton createRoundedButton(String text) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Serif", Font.BOLD, 16));
-        button.setBackground(new Color(255, 182, 193));
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setUI(new BasicButtonUI() {
-            @Override
-            public void paint(Graphics g, JComponent c) {
-                Graphics2D g2 = (Graphics2D) g;
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                int width = c.getWidth();
-                int height = c.getHeight();
-                int arc = 20;
-                g2.setColor(c.getBackground());
-                g2.fillRoundRect(0, 0, width, height, arc, arc);
-                super.paint(g, c);
-            }
-        });
-        return button;
-    }
-
     private void showMessage(String message) {
         UIManager.put("OptionPane.okButtonText", "확인");
         UIManager.put("Button.background", new ColorUIResource(255, 182, 193));
         UIManager.put("Button.foreground", new ColorUIResource(255, 255, 255));
         JOptionPane.showMessageDialog(this, message, "메시지", JOptionPane.PLAIN_MESSAGE);
+    }
+
+    private void showRankingPage() {
+        new Ranking(this, leaderboard.getUsers()).setVisible(true);
     }
 
     private void startGame(int size) {
