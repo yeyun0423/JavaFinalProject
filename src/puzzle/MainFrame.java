@@ -3,7 +3,8 @@ package puzzle;
 import puzzle.Model.PuzzleModel;
 import puzzle.Model.ScoreModel;
 import puzzle.Model.User;
-import puzzle.Model.Leaderboard;
+import puzzle.Model.Userlist;
+import puzzle.View.ImagePanel;  // 추가
 import puzzle.View.PuzzleView;
 import puzzle.Controller.PuzzleController;
 import puzzle.View.Ranking;
@@ -19,11 +20,11 @@ public class MainFrame extends JFrame {
     private JButton startButton;
     private JButton rankingButton;
     private String nickname;
-    private Leaderboard leaderboard;
+    private Userlist userlist;
 
     public MainFrame() {
-        leaderboard = new Leaderboard();
-        setTitle("귀여운 슬라이드 퍼즐 게임");
+        userlist = new Userlist();
+        setTitle("Slide Puzzle Game");
         setSize(600, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         initializeMainPage();
@@ -31,11 +32,10 @@ public class MainFrame extends JFrame {
     }
 
     private void initializeMainPage() {
-        mainPanel = new JPanel();
+        mainPanel = new ImagePanel("/resource/images/puzzleGame1.jpg");  // 이미지 패널로 변경
         mainPanel.setLayout(new BorderLayout());
-        mainPanel.setBackground(new Color(255, 228, 225));
 
-        JLabel titleLabel = new JLabel("귀여운 슬라이드 퍼즐 게임", JLabel.CENTER);
+        JLabel titleLabel = new JLabel("Slide Puzzle Game", JLabel.CENTER);
         titleLabel.setFont(new Font("Serif", Font.BOLD, 24));
         titleLabel.setForeground(new Color(255, 105, 180));
 
@@ -60,7 +60,7 @@ public class MainFrame extends JFrame {
         });
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(new Color(255, 228, 225));
+        buttonPanel.setOpaque(false);  // 버튼 패널 배경 투명으로 설정
         buttonPanel.add(startButton);
         buttonPanel.add(rankingButton);
 
@@ -79,13 +79,6 @@ public class MainFrame extends JFrame {
     }
 
     private void promptForNickname() {
-        UIManager.put("OptionPane.background", new ColorUIResource(255, 228, 225));
-        UIManager.put("Panel.background", new ColorUIResource(255, 228, 225));
-        UIManager.put("OptionPane.messageForeground", new ColorUIResource(255, 105, 180));
-        UIManager.put("OptionPane.messageFont", new javax.swing.plaf.FontUIResource(new java.awt.Font("Serif", java.awt.Font.BOLD, 16)));
-        UIManager.put("Button.background", new ColorUIResource(255, 182, 193));
-        UIManager.put("Button.foreground", new ColorUIResource(255, 255, 255));
-
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBackground(new Color(255, 228, 225));
         JTextField textField = new JTextField(10);
@@ -99,30 +92,71 @@ public class MainFrame extends JFrame {
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.insets = new Insets(10, 10, 10, 10);
-        panel.add(new JLabel("닉네임을 입력하세요:"), gbc);
+        panel.add(new JLabel("Enter a nickname:"), gbc);
 
         gbc.gridx = 1;
         panel.add(textField, gbc);
 
-        int result = JOptionPane.showConfirmDialog(this, panel, "닉네임 입력", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        // 커스터마이징된 버튼 생성
+        JButton okButton = new JButton("OK");
+        okButton.setBackground(new Color(255, 182, 193));
+        okButton.setForeground(Color.WHITE);
+        okButton.setFont(new Font("Serif", Font.BOLD, 16));
+        okButton.setFocusPainted(false);
 
-        if (result == JOptionPane.OK_OPTION) {
-            nickname = textField.getText();
-            if (nickname != null && !nickname.trim().isEmpty()) {
-                showPuzzleSizeOptions();
-            } else {
-                showMessage("닉네임을 입력해주세요.");
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.setBackground(new Color(255, 182, 193));
+        cancelButton.setForeground(Color.WHITE);
+        cancelButton.setFont(new Font("Serif", Font.BOLD, 16));
+        cancelButton.setFocusPainted(false);
+
+        // 옵션 다이얼로그 설정
+        Object[] options = {okButton, cancelButton};
+        final JDialog dialog = new JDialog(this, "Enter a nickname", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.getContentPane().add(panel, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(new Color(255, 228, 225));
+        buttonPanel.add(okButton);
+        buttonPanel.add(cancelButton);
+        dialog.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+
+        // OK 버튼 액션 리스너
+        okButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                nickname = textField.getText();
+                if (nickname != null && !nickname.trim().isEmpty()) {
+                    dialog.dispose();
+                    showPuzzleSizeOptions();
+                } else {
+                    showMessage("Enter a nickname");
+                }
             }
-        }
+        });
+
+        // Cancel 버튼 액션 리스너
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dialog.dispose();
+            }
+        });
+
+        dialog.setVisible(true);
     }
 
     private void showPuzzleSizeOptions() {
-        JDialog dialog = new JDialog(this, "퍼즐 크기 선택", true);
+        JDialog dialog = new JDialog(this, "Choose Puzzle Size", true);
         dialog.setSize(300, 200);
         dialog.setLayout(new GridLayout(4, 1));
         dialog.getContentPane().setBackground(new Color(255, 228, 225));
 
-        JLabel messageLabel = new JLabel("퍼즐 크기를 선택하세요", JLabel.CENTER);
+        JLabel messageLabel = new JLabel("Choose Puzzle Size", JLabel.CENTER);
         messageLabel.setFont(new Font("Serif", Font.PLAIN, 18));
         messageLabel.setForeground(new Color(255, 105, 180));
 
@@ -166,14 +200,40 @@ public class MainFrame extends JFrame {
     }
 
     private void showMessage(String message) {
-        UIManager.put("OptionPane.okButtonText", "확인");
-        UIManager.put("Button.background", new ColorUIResource(255, 182, 193));
-        UIManager.put("Button.foreground", new ColorUIResource(255, 255, 255));
-        JOptionPane.showMessageDialog(this, message, "메시지", JOptionPane.PLAIN_MESSAGE);
+        JPanel panel = new JPanel();
+        panel.setBackground(new Color(255, 228, 225));
+        panel.add(new JLabel(message));
+
+        JButton okButton = new JButton("확인");
+        okButton.setBackground(new Color(255, 182, 193));
+        okButton.setForeground(Color.WHITE);
+        okButton.setFont(new Font("Serif", Font.BOLD, 16));
+        okButton.setFocusPainted(false);
+
+        final JDialog dialog = new JDialog(this, "Message", true);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.getContentPane().add(panel, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(new Color(255, 228, 225));
+        buttonPanel.add(okButton);
+        dialog.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+
+        dialog.pack();
+        dialog.setLocationRelativeTo(this);
+
+        okButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dialog.dispose();
+            }
+        });
+
+        dialog.setVisible(true);
     }
 
     private void showRankingPage() {
-        new Ranking(this, leaderboard.getUsers()).setVisible(true);
+        new Ranking(this, userlist.getUsers()).setVisible(true);
     }
 
     private void startGame(int size) {
@@ -183,7 +243,7 @@ public class MainFrame extends JFrame {
         PuzzleModel model = new PuzzleModel(size);
         PuzzleView view = new PuzzleView(model);
         ScoreModel scoreModel = new ScoreModel();
-        PuzzleController controller = new PuzzleController(model, view, scoreModel, nickname, leaderboard, this);
+        PuzzleController controller = new PuzzleController(model, view, scoreModel, nickname, userlist, this);
 
         add(view, BorderLayout.CENTER);
 

@@ -3,31 +3,33 @@ package puzzle.Model;
 public class ScoreModel {
     private int moves;
     private long startTime;
-    private long endTime;
+    private long elapsedTime;
 
     public ScoreModel() {
-        moves = 0;
-        startTime = System.currentTimeMillis();
+        this.moves = 0;
+        this.startTime = System.currentTimeMillis();
+        this.elapsedTime = 0;
     }
 
     public void incrementMoves() {
-        moves++;
+        this.moves++;
+    }
+
+    public void incrementTime() {
+        long currentTime = System.currentTimeMillis();
+        this.elapsedTime = (currentTime - startTime) / 1000;
+    }
+
+    public void endGame() {
+        long currentTime = System.currentTimeMillis();
+        this.elapsedTime = (currentTime - startTime) / 1000;
     }
 
     public int getMoves() {
         return moves;
     }
 
-    public void endGame() {
-        endTime = System.currentTimeMillis();
-    }
-
     public long getElapsedTime() {
-        return (endTime - startTime) / 1000; 
-    }
-
-    public int calculateScore() {
-        long elapsedTime = getElapsedTime();
-        return (int) (10000 / (moves * elapsedTime + 1)); 
+        return elapsedTime;
     }
 }

@@ -3,34 +3,35 @@ package puzzle.Controller;
 import puzzle.Model.PuzzleModel;
 import puzzle.Model.ScoreModel;
 import puzzle.Model.User;
-import puzzle.Model.Leaderboard;
+import puzzle.Model.Userlist;
 import puzzle.View.PuzzleView;
+import puzzle.View.ScorePanel;
 import puzzle.View.Ranking;
 
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JButton;
 import javax.swing.JOptionPane;
-import javax.swing.UIManager;
-import javax.swing.plaf.ColorUIResource;
-import java.awt.Frame;
+import javax.swing.Timer;
 
 public class PuzzleController {
     private PuzzleModel model;
     private PuzzleView view;
     private ScoreModel scoreModel;
     private String nickname;
-    private Leaderboard leaderboard;
+    private Userlist userlist;
     private Frame mainFrame;
+    private Timer timer;
 
-    public PuzzleController(PuzzleModel model, PuzzleView view, ScoreModel scoreModel, String nickname, Leaderboard leaderboard, Frame mainFrame) {
+    public PuzzleController(PuzzleModel model, PuzzleView view, ScoreModel scoreModel, String nickname, Userlist userlist, Frame mainFrame) {
         this.model = model;
         this.view = view;
         this.scoreModel = scoreModel;
         this.nickname = nickname;
-        this.leaderboard = leaderboard;
+        this.userlist = userlist;
         this.mainFrame = mainFrame;
         initializeController();
+        startTimer();
     }
 
     private void initializeController() {
@@ -47,7 +48,7 @@ public class PuzzleController {
                             view.updateView();
                             view.getScorePanel().incrementMoves(); // 이동 횟수 업데이트
                             if (model.isSolved()) {
-                                scoreModel.endGame();
+                                endGame();
                                 showSuccessMessage();
                             }
                         }
@@ -78,17 +79,28 @@ public class PuzzleController {
         }
     }
 
+    private void startTimer() {
+        timer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                scoreModel.incrementTime();
+                view.getScorePanel().updateTime(scoreModel.getElapsedTime()); // 시간 업데이트
+            }
+        });
+        timer.start();
+    }
+
+    private void endGame() {
+        timer.stop();
+        scoreModel.endGame();
+        view.getScorePanel().updateTime(scoreModel.getElapsedTime()); // 종료 시 정확한 시간 설정
+    }
+
     private void showSuccessMessage() {
-        UIManager.put("OptionPane.background", new ColorUIResource(255, 228, 225));
-        UIManager.put("Panel.background", new ColorUIResource(255, 228, 225));
-        UIManager.put("OptionPane.messageForeground", new ColorUIResource(255, 105, 180));
-        UIManager.put("OptionPane.messageFont", new javax.swing.plaf.FontUIResource(new java.awt.Font("Serif", java.awt.Font.BOLD, 16)));
-        UIManager.put("Button.background", new ColorUIResource(255, 182, 193));
-        UIManager.put("Button.foreground", new ColorUIResource(255, 255, 255));
-
+        endGame();
         User user = new User(nickname, scoreModel.getElapsedTime(), scoreModel.getMoves(), model.getSize() + "x" + model.getSize());
-        leaderboard.addUser(user);
-
-        new Ranking(mainFrame, leaderboard.getUsers()).setVisible(true);
+        userlist.addUser(user);
+        JOptionPane.showMessageDialog(mainFrame, "축하합니다! 퍼즐을 해결했습니다.", "게임 종료", JOptionPane.INFORMATION_MESSAGE);
+        new Ranking(mainFrame, userlist.getUsers()).setVisible(true);
     }
 }

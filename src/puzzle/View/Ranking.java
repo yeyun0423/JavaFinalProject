@@ -22,15 +22,18 @@ public class Ranking extends JDialog {
         headerLabel.setForeground(new Color(255, 105, 180));
         headerPanel.add(headerLabel);
 
-        // 컬럼 패널을 더 위로 올리기 위해 headerPanel 아래에 추가
-        JPanel columnPanel = new JPanel(new GridLayout(1, 4));
+        // 컬럼 패널 설정
+        JPanel columnPanel = new JPanel(new GridLayout(1, 5));
         columnPanel.setBackground(new Color(255, 228, 225));
-        columnPanel.add(createLabel("Name"));
+        columnPanel.add(createLabel("Rank"));
+        columnPanel.add(createLabel("Nickname"));
         columnPanel.add(createLabel("Time"));
         columnPanel.add(createLabel("Count"));
         columnPanel.add(createLabel("Level"));
 
-        JPanel leaderboardPanel = new JPanel(new GridLayout(allUsers.size(), 1));
+        // 순위 정보 패널 설정
+        JPanel leaderboardPanel = new JPanel();
+        leaderboardPanel.setLayout(new BoxLayout(leaderboardPanel, BoxLayout.Y_AXIS));
         leaderboardPanel.setBackground(new Color(255, 228, 225));
 
         int rank = 1;
@@ -43,7 +46,7 @@ public class Ranking extends JDialog {
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBackground(new Color(255, 228, 225));
         topPanel.add(headerPanel, BorderLayout.NORTH);
-        topPanel.add(columnPanel, BorderLayout.SOUTH);
+        topPanel.add(columnPanel, BorderLayout.CENTER);
 
         add(topPanel, BorderLayout.NORTH); // 상단 패널 추가
         add(new JScrollPane(leaderboardPanel), BorderLayout.CENTER); // 스크롤 가능한 순위표 패널 추가
@@ -70,7 +73,7 @@ public class Ranking extends JDialog {
 
     // 순위 패널 생성 헬퍼 메소드
     private JPanel createRankPanel(int rank, User user) {
-        JPanel rankPanel = new JPanel(new GridLayout(1, 4));
+        JPanel rankPanel = new JPanel(new GridLayout(1, 5));
         rankPanel.setBackground(new Color(255, 228, 225));
 
         JLabel rankLabel = new JLabel(String.valueOf(rank), JLabel.CENTER);
