@@ -1,16 +1,23 @@
 package puzzle.Model;
 
+import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
 
 public class PuzzleModel {
     private int[][] puzzle;
+    private BufferedImage[][] images;  // 이미지 조각을 저장할 배열
     private int size;
+    private int[][] originalX;  // 각 조각의 원래 X 위치
+    private int[][] originalY;  // 각 조각의 원래 Y 위치
 
     public PuzzleModel(int size) {
         this.size = size;
         puzzle = new int[size][size];
+        images = new BufferedImage[size][size];
+        originalX = new int[size][size];
+        originalY = new int[size][size];
         initializePuzzle();
     }
 
@@ -19,9 +26,21 @@ public class PuzzleModel {
         for (int i = 0; i < size * size; i++) {
             numbers.add(i);
         }
-        Collections.shuffle(numbers);
 
+        // 퍼즐을 섞기 전에 이미지 배열 설정 및 원래 위치 기록
         int count = 0;
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                puzzle[i][j] = count;
+                originalX[i][j] = i;
+                originalY[i][j] = j;
+                count++;
+            }
+        }
+
+        // 퍼즐 섞기
+        Collections.shuffle(numbers);
+        count = 0;
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 puzzle[i][j] = numbers.get(count++);
@@ -41,13 +60,21 @@ public class PuzzleModel {
         puzzle[x][y] = value;
     }
 
+    public BufferedImage getImageAt(int x, int y) {
+        int value = puzzle[x][y];
+        int origX = value / size;
+        int origY = value % size;
+        return images[origX][origY];
+    }
+
+    public void setImageAt(int x, int y, BufferedImage image) {
+        images[x][y] = image;
+    }
+
     public boolean isSolved() {
-        int count = 1;
+        int count = 0;
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                if (i == size - 1 && j == size - 1) {
-                    return puzzle[i][j] == 0;
-                }
                 if (puzzle[i][j] != count++) {
                     return false;
                 }
@@ -82,6 +109,7 @@ public class PuzzleModel {
             }
         }
         if (canMove(x, y)) {
+            // Swap values
             puzzle[blankX][blankY] = puzzle[x][y];
             puzzle[x][y] = 0;
         }
