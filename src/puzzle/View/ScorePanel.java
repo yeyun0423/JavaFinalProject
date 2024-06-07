@@ -32,6 +32,6 @@ public class ScorePanel extends JPanel {
 
     public void updateTime(long elapsedTime) {
         this.elapsedTime = elapsedTime;
-        timeLabel.setText("Time: " + elapsedTime);
+        timeLabel.setText("Time: " + elapsedTime / 1000);
     }
 }

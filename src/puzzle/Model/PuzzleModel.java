@@ -97,7 +97,7 @@ public class PuzzleModel {
         return (Math.abs(blankX - x) == 1 && blankY == y) || (Math.abs(blankY - y) == 1 && blankX == x);
     }
 
-    public void moveTile(int x, int y) {
+    public boolean moveTile(int x, int y) {
         int blankX = -1;
         int blankY = -1;
         for (int i = 0; i < size; i++) {
@@ -112,6 +112,8 @@ public class PuzzleModel {
             // Swap values
             puzzle[blankX][blankY] = puzzle[x][y];
             puzzle[x][y] = 0;
+            return true;
         }
+        return false;
     }
 }

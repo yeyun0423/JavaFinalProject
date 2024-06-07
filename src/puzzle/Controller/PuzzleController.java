@@ -5,6 +5,7 @@ import puzzle.Model.ScoreModel;
 import puzzle.Model.User;
 import puzzle.Model.Userlist;
 import puzzle.View.PuzzleView;
+import puzzle.GameTimer;
 import puzzle.View.ScorePanel;
 import puzzle.View.Ranking;
 
@@ -27,17 +28,18 @@ public class PuzzleController {
     private String nickname;
     private Userlist userlist;
     private Frame mainFrame;
-    private Timer timer;
+    private GameTimer timer;
 
-    public PuzzleController(PuzzleModel model, PuzzleView view, ScoreModel scoreModel, String nickname, Userlist userlist, Frame mainFrame) {
+    public PuzzleController(PuzzleModel model, PuzzleView view, ScoreModel scoreModel, String nickname, Userlist userlist, Frame mainFrame, GameTimer timer) {
         this.model = model;
         this.view = view;
         this.scoreModel = scoreModel;
         this.nickname = nickname;
         this.userlist = userlist;
         this.mainFrame = mainFrame;
+        this.timer = timer;
         initializeController();
-        startTimer();
+        timer.start(); // 게임 시작 시 타이머 시작
     }
 
     private void initializeController() {
@@ -64,21 +66,11 @@ public class PuzzleController {
         }
     }
 
-    private void startTimer() {
-        timer = new Timer(1000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                scoreModel.incrementTime();
-                view.getScorePanel().updateTime(scoreModel.getElapsedTime()); // 시간 업데이트
-            }
-        });
-        timer.start();
-    }
-
     private void endGame() {
         timer.stop();
+        long finalTime = timer.getElapsedTime();
         scoreModel.endGame();
-        view.getScorePanel().updateTime(scoreModel.getElapsedTime()); // 종료 시 정확한 시간 설정
+        view.getScorePanel().updateTime(finalTime); // 종료 시 정확한 시간 설정
     }
 
     private void showSuccessMessage() {
@@ -126,3 +118,4 @@ public class PuzzleController {
         dialog.setVisible(true);
     }
 }
+

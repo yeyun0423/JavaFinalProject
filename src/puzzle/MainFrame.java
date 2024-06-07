@@ -1,19 +1,23 @@
 package puzzle;
 
+import puzzle.Model.Userlist;
+import puzzle.View.ImagePanel;
+import puzzle.View.Ranking;
+import puzzle.Controller.PuzzleController;
 import puzzle.Model.PuzzleModel;
 import puzzle.Model.ScoreModel;
-import puzzle.Model.User;
-import puzzle.Model.Userlist;
-import puzzle.View.ImagePanel;  // 추가
 import puzzle.View.PuzzleView;
-import puzzle.Controller.PuzzleController;
-import puzzle.View.Ranking;
+import puzzle.View.ScorePanel;
+
+import javazoom.jl.player.Player;
 
 import javax.swing.*;
-import javax.swing.plaf.ColorUIResource;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+import java.net.URL;
 
 public class MainFrame extends JFrame {
     private JPanel mainPanel;
@@ -21,6 +25,8 @@ public class MainFrame extends JFrame {
     private JButton rankingButton;
     private String nickname;
     private Userlist userlist;
+    private Thread backgroundMusicThread;
+    private boolean isPlaying;
 
     public MainFrame() {
         userlist = new Userlist();
@@ -28,11 +34,43 @@ public class MainFrame extends JFrame {
         setSize(600, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         initializeMainPage();
+        startBackgroundMusic("/resource/sounds/PuzzleGameBM.mp3");
         setVisible(true);
     }
 
+    private void startBackgroundMusic(String filepath) {
+        backgroundMusicThread = new Thread(() -> playBackgroundMusic(filepath));
+        backgroundMusicThread.start();
+    }
+
+    private void playBackgroundMusic(String filepath) {
+        isPlaying = true;
+        while (isPlaying) {
+            try {
+                URL soundURL = getClass().getResource(filepath);
+                if (soundURL == null) {
+                    throw new RuntimeException("Sound file not found: " + filepath);
+                }
+                InputStream inputStream = new BufferedInputStream(soundURL.openStream());
+                Player player = new Player(inputStream);
+                player.play();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void dispose() {
+        isPlaying = false; // 음악 반복 재생 중지
+        if (backgroundMusicThread != null && backgroundMusicThread.isAlive()) {
+            backgroundMusicThread.interrupt(); // 스레드 중지
+        }
+        super.dispose();
+    }
+
     private void initializeMainPage() {
-        mainPanel = new ImagePanel("/resource/images/puzzleGame1.jpg");  // 이미지 패널로 변경
+        mainPanel = new ImagePanel("/resource/images/puzzleGame1.jpg");
         mainPanel.setLayout(new BorderLayout());
 
         JLabel titleLabel = new JLabel("Slide Puzzle Game", JLabel.CENTER);
@@ -60,7 +98,7 @@ public class MainFrame extends JFrame {
         });
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setOpaque(false);  // 버튼 패널 배경 투명으로 설정
+        buttonPanel.setOpaque(false);
         buttonPanel.add(startButton);
         buttonPanel.add(rankingButton);
 
@@ -97,7 +135,6 @@ public class MainFrame extends JFrame {
         gbc.gridx = 1;
         panel.add(textField, gbc);
 
-        // 커스터마이징된 버튼 생성
         JButton okButton = new JButton("OK");
         okButton.setBackground(new Color(255, 182, 193));
         okButton.setForeground(Color.WHITE);
@@ -110,7 +147,6 @@ public class MainFrame extends JFrame {
         cancelButton.setFont(new Font("Serif", Font.BOLD, 16));
         cancelButton.setFocusPainted(false);
 
-        // 옵션 다이얼로그 설정
         Object[] options = {okButton, cancelButton};
         final JDialog dialog = new JDialog(this, "Enter a nickname", true);
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -125,7 +161,6 @@ public class MainFrame extends JFrame {
         dialog.pack();
         dialog.setLocationRelativeTo(this);
 
-        // OK 버튼 액션 리스너
         okButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -139,7 +174,6 @@ public class MainFrame extends JFrame {
             }
         });
 
-        // Cancel 버튼 액션 리스너
         cancelButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -241,9 +275,11 @@ public class MainFrame extends JFrame {
         setLayout(new BorderLayout());
 
         PuzzleModel model = new PuzzleModel(size);
-        PuzzleView view = new PuzzleView(model);
+        ScorePanel scorePanel = new ScorePanel(); // ScorePanel 생성
+        GameTimer timer = new GameTimer(scorePanel);  // GameTimer 인스턴스 생성
+        PuzzleView view = new PuzzleView(model, timer, scorePanel);  // GameTimer와 ScorePanel 전달
         ScoreModel scoreModel = new ScoreModel();
-        PuzzleController controller = new PuzzleController(model, view, scoreModel, nickname, userlist, this);
+        PuzzleController controller = new PuzzleController(model, view, scoreModel, nickname, userlist, this, timer);  // GameTimer 전달
 
         add(view, BorderLayout.CENTER);
 

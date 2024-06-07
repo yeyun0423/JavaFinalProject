@@ -3,28 +3,34 @@ package puzzle;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import puzzle.View.ScorePanel;
 
 public class GameTimer {
     private Timer timer;
     private long startTime;
+    private ScorePanel scorePanel;
 
-    public GameTimer() {
-        startTime = System.currentTimeMillis();
+    public GameTimer(ScorePanel scorePanel) {
+        this.scorePanel = scorePanel;
         timer = new Timer(1000, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 long elapsedTime = System.currentTimeMillis() - startTime;
-                // UI 업데이트 로직 (예: 라벨에 시간 표시)
+                scorePanel.updateTime(elapsedTime);
             }
         });
     }
 
     public void start() {
+        startTime = System.currentTimeMillis();
         timer.start();
     }
 
     public void stop() {
         timer.stop();
     }
-}
 
+    public long getElapsedTime() {
+        return System.currentTimeMillis() - startTime;
+    }
+}
