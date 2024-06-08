@@ -18,6 +18,7 @@ public class PuzzleView extends JPanel {
     private JButton[][] buttons;
     private ScoreView scoreView;
     private Timer timer;
+    private JButton hintButton;
 
     public PuzzleView(PuzzleModel puzzleModel, Timer timer, ScoreView scoreView) {
         this.puzzleModel = puzzleModel;
@@ -34,6 +35,21 @@ public class PuzzleView extends JPanel {
         puzzlePanel.setOpaque(false);
         initializeButtons(puzzlePanel);
         add(puzzlePanel, BorderLayout.CENTER);
+
+        // Hint 버튼 추가
+        hintButton = new JButton("Hint");
+        hintButton.setFont(new Font("Serif", Font.BOLD, 16));
+        hintButton.setBackground(new Color(255, 182, 193));
+        hintButton.setForeground(Color.WHITE);
+        hintButton.setFocusPainted(false);
+        hintButton.setOpaque(true);
+        hintButton.setBorderPainted(false);
+        hintButton.setPreferredSize(new Dimension(100, 40));
+        hintButton.addActionListener(e -> showHint());
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(hintButton);
+        add(buttonPanel, BorderLayout.SOUTH);
 
         try {
             URL imagePath = getClass().getResource("/resource/images/puzzleGame1.jpg");
@@ -65,6 +81,8 @@ public class PuzzleView extends JPanel {
                 buttons[i][j].setBackground(new Color(255, 182, 193));
                 buttons[i][j].setForeground(Color.WHITE);
                 buttons[i][j].setFocusPainted(false);
+                buttons[i][j].setOpaque(true);
+                buttons[i][j].setBorderPainted(false);
                 buttons[i][j].setPreferredSize(new Dimension(80, 80));
                 final int x = i;
                 final int y = j;
@@ -107,5 +125,15 @@ public class PuzzleView extends JPanel {
 
     public ScoreView getScoreView() {
         return scoreView;
+    }
+
+    public JButton getHintButton() {
+        return hintButton;
+    }
+
+    // 힌트 이미지 창 표시 메서드
+    private void showHint() {
+        HintView hintView = new HintView((Frame) SwingUtilities.getWindowAncestor(this));
+        hintView.setVisible(true);
     }
 }
