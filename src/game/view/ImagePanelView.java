@@ -1,19 +1,22 @@
-package puzzle.View;
+package game.view;
 
 import javax.swing.*;
 import java.awt.*;
 import java.net.URL;
 
-public class ImagePanel extends JPanel {
+/**
+ * ImagePanelView: 배경 이미지를 표시하는 JPanel 클래스입니다.
+ */
+public class ImagePanelView extends JPanel {
     private Image image;
 
-    public ImagePanel(String imagePath) {
+    public ImagePanelView(String imagePath) {
         URL imgURL = getClass().getResource(imagePath);
         if (imgURL != null) {
             this.image = new ImageIcon(imgURL).getImage();
         } else {
             System.err.println("Couldn't find file: " + imagePath);
-            this.image = null;  // 이미지를 찾을 수 없을 경우
+            this.image = null;
         }
     }
 

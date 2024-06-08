@@ -1,15 +1,18 @@
-package puzzle.View;
+package game.view;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class ScorePanel extends JPanel {
+/**
+ * ScoreView: 이동 횟수와 시간을 화면에 표시하는 클래스입니다.
+ */
+public class ScoreView extends JPanel {
     private JLabel movesLabel;
     private JLabel timeLabel;
-    private int moves;
-    private long elapsedTime;
+    private int moveCount;
+    private int endTime;
 
-    public ScorePanel() {
+    public ScoreView() {
         setLayout(new GridLayout(1, 2));
         setBackground(new Color(255, 228, 225));
         
@@ -25,13 +28,13 @@ public class ScorePanel extends JPanel {
         add(timeLabel);
     }
 
-    public void incrementMoves() {
-        moves++;
-        movesLabel.setText("Moves: " + moves);
+    public void countMove() {
+        moveCount++;
+        movesLabel.setText("Moves: " + moveCount);
     }
 
-    public void updateTime(long elapsedTime) {
-        this.elapsedTime = elapsedTime;
-        timeLabel.setText("Time: " + elapsedTime / 1000);
+    public void updateTime(int elapsedTime) {
+        this.endTime = elapsedTime;
+        timeLabel.setText("Time: " + elapsedTime);
     }
 }
